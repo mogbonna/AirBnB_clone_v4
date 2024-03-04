@@ -1,38 +1,24 @@
-dy(() => {
-  let amenityDict = {};
-  $('input:checkbox').change(() => {
-    let amenityString = '';
-    if ($(this).is(':checked')) {
-      $('li > input:checkbox:checked').map(function () {
-        amenityDict[$(this).attr('data-id')] = ' ' + $(this).attr('data-name');
-      }).get();
-      Object.values(amenityDict).forEach((amenity) => {
-        amenityString += amenity;
-        amenityString += ' ';
-      });
-      $('div.amenities > h4').text(amenityString);
+$(document).ready(function () {
+  let checkedAmenities = {};
+  $(document).on('change', "input[type='checkbox']", function () {
+    if (this.checked) {
+      checkedAmenities[$(this).data('id')] = $(this).data('name');
     } else {
-      amenityDict = {};
-      $('li > input:checkbox:checked').map(function () {
-        amenityDict[$(this).attr('data-id')] = $(this).attr('data-name');
-      }).get();
-      Object.values(amenityDict).forEach((amenity, i) => {
-        amenityString += amenity;
-        if (i !== Object.values(amenityDict).length - 1) {
-          amenityString += ', ';
-        }
-      });
-      $('div.amenities > h4').text(amenityString);
+      delete checkedAmenities[$(this).data('id')];
+    }
+    let lst = Object.values(checkedAmenities);
+    if (lst.length > 0) {
+      $('div.amenities > h4').text(Object.values(checkedAmenities).join(', '));
+    } else {
+      $('div.amenities > h4').html('&nbsp;');
     }
   });
-
-  $.ajax({
-    url: 'http://0.0.0.0:5001/api/v1/status/',
-    success: (status) => {
-      if (status.status === 'OK') {
-        $('div#api_status').addClass('available');
+  $.get('http://0.0.0.0:5001/api/v1/status/', function (data, textStatus) {
+    if (textStatus === 'success') {
+      if (data.status === 'OK') {
+        $('#api_status').addClass('available');
       } else {
-        $('div#api_status').removeClass('available');
+        $('#api_status').removeClass('available');
       }
     }
   });
